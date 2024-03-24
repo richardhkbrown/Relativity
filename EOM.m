@@ -39,11 +39,11 @@ hold on;
 set(gca,'ColorOrderIndex',1);
 plot(r,Vref_newton,'g',r,Vref_gr,'m','LineWidth',2);
 hold off;
-axis([0 3 -4 1]);
-set(figure(1),'Position',[100 100 1280 720]);
+axis([0 3 -3 1]);
+set(figure(1),'Position',[100 100 1280 720],'Color','k');
 grid on;
-% set(ax1,'Position',[0.563 0.05 1-.563 0.9],'XColor','w','YColor','w','Color','k');
-
+set(ax1,'Position',[0.563+0.025 0.05 1-.563-0.025 0.925],'XColor','w','YColor','w','Color','k');
+ 
 ax2 = axes;
 G = const.G;
 M = const.M;
@@ -208,7 +208,7 @@ function dY = f_newton(y,const)
     
     dr_dtau = const.rDir*sqrt(2*(E-Vref)/m);
     dphi_dtau = L/(m*r^2);
-    dt_dtau = -E/m/(1-r_s/r);
+    dt_dtau = E/m/(1-r_s/r);
     
     dY = [dr_dtau dphi_dtau dt_dtau];
     
@@ -228,7 +228,7 @@ function dY = f_gr(y,const)
     
     dr_dtau = const.rDir*sqrt(2*(E-Vref)/m);
     dphi_dtau = L/(m*r^2);
-    dt_dtau = -E/m/(1-r_s/r);
+    dt_dtau = E/m/(1-r_s/r);
     
     dY = [dr_dtau dphi_dtau dt_dtau];
     
