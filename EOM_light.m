@@ -3,13 +3,22 @@ clear all;
 
 % Constants
 const = [];
-const.G = 1;
-const.M = 1;
-const.c = 10;
+r_s = 1;
+G = 1;
+c = 10;
+M = r_s*c^2/(2*G);
+const.G = G;
+const.M = M;
+const.c = c;
 
 % Initial Conditions
+G = const.G;
+M = const.M;
+c = const.c;
+r_s = 2*G*M/c^2;
+
 v_o = 0.5;
-r = 1;
+r = r_s*3/2; % photon sphere
 t = 0;
 phi = 0;
 theta = pi/2;
@@ -18,8 +27,7 @@ v_phi = v_o / r;
 v_theta = 0;
 [g__t_t,g__t_r,g__t_theta,g__t_phi,g__r_r,g__r_theta,g__r_phi,g__theta_theta,g__theta_phi,g__phi_phi] = ...
     metric(r,theta,const);
-c = const.c;
-v_t = sqrt( (c^2 - g__r_r*v_r*v_r - g__phi_phi*v_phi*v_phi - g__theta_theta*v_theta*v_theta)/g__t_t );
+v_t = sqrt( (0 - g__r_r*v_r*v_r - g__phi_phi*v_phi*v_phi - g__theta_theta*v_theta*v_theta)/g__t_t );
 
 % Trails
 r_ = r;
@@ -29,9 +37,6 @@ theta_ = theta;
 
 % Plot
 ax = axes;
-G = const.G;
-M = const.M;
-r_s = 2*G*M/c^2;
 angs = 0:1:360;
 hold off;
 hTop = plot(ax,r.*cos(phi),r.*sin(phi),'go');
@@ -46,17 +51,17 @@ hTop(end).FaceVertexAlphaData = 1;
 hTop = [hTop patch(r_s.*cosd(angs),r_s.*sind(angs),'y')];
 hTop(end).EdgeColor = 'none'; 
 axis equal;
-axis([-1.1 1.1 -1.1 1.1]);
+axis([-2 2 -2 2]);
 set(ax,'Position',[0 0 1 1],'XColor','none','YColor','none','Color','k');
 set(ax.Parent,'Color',[.5 .5 .5]);
 
 % Initial States
 y = [v_r v_t v_phi v_theta r t phi theta];
 
-tau = 0;
-h = 0.0001;
+lamda = 0;
+h = 0.001;
 iPlot = 0;
-while ( tau<20 )
+while ( lamda<1000000 )
       
     k1 = f(y,const);
     k2 = f(y+0.5*h*k1,const);
@@ -67,7 +72,7 @@ while ( tau<20 )
     t = y(6);
     phi = y(7);
     theta = y(8);
-    tau = tau + h;
+    lamda = lamda + h;
 
     % v correction
     v_r = y(1);
@@ -77,15 +82,19 @@ while ( tau<20 )
     [g__t_t,g__t_r,g__t_theta,g__t_phi,g__r_r,g__r_theta,g__r_phi,g__theta_theta,g__theta_phi,g__phi_phi] = ...
         metric(r,theta,const);
     v_2 = g__r_r*v_r*v_r + g__t_t*v_t*v_t + g__phi_phi*v_phi*v_phi + g__theta_theta*v_theta*v_theta;
-    % c^2 = A*(vA*s)^2 + B*(vB*s)^2 + C*(vC*s)^2 + D*(vD*s)^2
-    % c^2 = s^2*(A*vA^2 + B*vB^2 + C*vC^2 + D*vD^2)
-    % v^2 = A*vA^2 + B*vB^2 + C*vC^2 + D*vD^2
-    % c^2 = s^2*v^2
-    % s^2 = c^2/v^2
-    % s = sqrt(c^2/v^2)
-    s = sqrt(c^2/v_2);
-    y(1:4) = y(1:4)*s;
-
+    v_2nt = g__r_r*v_r*v_r + g__phi_phi*v_phi*v_phi + g__theta_theta*v_theta*v_theta;
+    % 0 = A*vA^2 + B*(vB*s)^2 + C*vC^2 + D*vD^2
+    % -A*vA^2 - C*vC^2 - D*vD^2 = s^2*B*vB^2
+    % s^2*B*vB^2 = -1*(A*vA^2 + C*vC^2 + D*vD^2)
+    % v_2nt = (A*vA^2 + C*vC^2 + D*vD^2)
+    % s^2 = -v_2nt/(B*vB^2)
+    % s = sqrt(-v_2nt/(B*vB^2))
+    s = sqrt(-v_2nt/(g__t_t*v_t*v_t));
+    if ( s~=1.0 )
+        fprintf('s=%32.30f\n',s);
+    end
+    y(2) = y(2)*s;
+    
     if ( mod(iPlot,100)==0 )
         r_(end+1) = r;
         t_(end+1) = t;
@@ -122,7 +131,7 @@ while ( tau<20 )
         drawnow;
     end
     if ( mod(iPlot,10000)==0 )
-        fprintf(1,'verror %16g\n',1-sqrt((c^2/v_2)));
+        fprintf(1,'verror %16g\n',sign(v_2)*sqrt(abs(v_2)));
     end
     iPlot = iPlot+1;
     
@@ -146,7 +155,7 @@ function dY = f(y,const)
     t = y(6);
     phi = y(7);
     theta = y(8);
-
+    
     [Gamma_t,Gamma_r,Gamma_phi,Gamma_theta] = ...
         christoffel(r,theta,const);
 
