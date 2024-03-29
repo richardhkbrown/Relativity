@@ -112,7 +112,7 @@ function dY = f(y,const)
     r = y(1);
     r_s = 2*G*M/c^2;
 
-    % r, t, phi, theta
+    % y = [v_r, v_t, v_phi, v_theta, r, t, phi, theta]
 
     v_r = y(1);
     v_t = y(2);
