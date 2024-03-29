@@ -19,6 +19,7 @@ r_s = 2*G*M/c^2;
 
 v_o = 0.5;
 r = r_s*3/2; % photon sphere
+r = r*0.9999999999999;
 t = 0;
 phi = 0;
 theta = pi/2;
@@ -90,9 +91,6 @@ while ( lamda<1000000 )
     % s^2 = -v_2nt/(B*vB^2)
     % s = sqrt(-v_2nt/(B*vB^2))
     s = sqrt(-v_2nt/(g__t_t*v_t*v_t));
-    if ( s~=1.0 )
-        fprintf('s=%32.30f\n',s);
-    end
     y(2) = y(2)*s;
     
     if ( mod(iPlot,100)==0 )
