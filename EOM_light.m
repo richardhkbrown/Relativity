@@ -62,7 +62,7 @@ y = [v_r v_t v_phi v_theta r t phi theta];
 lamda = 0;
 h = 0.001;
 iPlot = 0;
-while ( lamda<1000000 )
+while ( lamda<1000 )
       
     k1 = f(y,const);
     k2 = f(y+0.5*h*k1,const);
@@ -137,12 +137,6 @@ end
 
 function dY = f(y,const)
 
-    G = const.G;
-    M = const.M;
-    c = const.c;
-    r = y(1);
-    r_s = 2*G*M/c^2;
-
     % y = [v_r, v_t, v_phi, v_theta, r, t, phi, theta]
 
     v_r = y(1);
@@ -174,7 +168,7 @@ end
 function [g__t_t,g__t_r,g__t_theta,g__t_phi, ...
         g__r_r,g__r_theta,g__r_phi,...
         g__theta_theta,g__theta_phi,g__phi_phi] = ...
-    metric(r,theta,const);
+    metric(r,theta,const)
 
     % Schwarzschild 
     
